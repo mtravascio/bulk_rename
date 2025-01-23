@@ -8,4 +8,4 @@ if (-not (Test-Path $buildir)) {
 }
 
 dart pub get
-dart compile exe .\bin\spegniti.dart -o $buildir\spegniti.exe -S spegniti.dbg
+dart compile exe .\bin\bulk_rename.dart -o $buildir\bulk_rename.exe -S bulk_rename.dbg

@@ -2,7 +2,8 @@
 
 BUILD_DIR="./build/macos"
 
+mkdir -p "$BUILD_DIR"
 rm -rf "$BUILD_DIR"/*
 
 dart pub get
-dart compile exe ./bin/spegniti.dart -o "$BUILD_DIR"/spegniti -S /dev/null
+dart compile exe ./bin/bulk_rename.dart -o "$BUILD_DIR"/bulk_rename -S /dev/null
