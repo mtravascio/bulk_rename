@@ -22,11 +22,13 @@ void main(List<String> args) {
       if (parts.length >= 2) {
         try {
           int numero = int.parse(parts[0]);
+          //print(numero);
           //List<String> nomeDescrizione = parts[1].split(';');
           //String nome =nomeDescrizione[0].trim() + "_" + nomeDescrizione[1].trim();
           String nome = parts[1].trim();
-
+          //print(nome);
           nomiFile[numero] = nome;
+          //print(nomiFile[numero]);
         } catch (e) {
           // Ignora la riga se la prima colonna non è un numero
           print(
@@ -44,7 +46,13 @@ void main(List<String> args) {
   // Scansiona la directory per trovare i file numerati
   Directory(directoryInput).listSync().forEach((file) {
     if (file is File) {
-      String fileName = file.path.split('/').last;
+      //print(file.path);
+      String? fileName;
+      if (Platform.isWindows) {
+        fileName = file.path.split('\\').last;
+      } else {
+        fileName = file.path.split('/').last;
+      }
       RegExp regExp = RegExp(r'^(\d+)');
       Match? match = regExp.firstMatch(fileName);
       if (match != null) {
