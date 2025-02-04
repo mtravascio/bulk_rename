@@ -1,11 +1,21 @@
 import 'dart:io';
+import 'package:csv/csv.dart';
+import 'package:csv/csv_settings_autodetection.dart';
+
+// Funzione che verifica se il valore è un numero
+bool isOK(dynamic valore) {
+  if (valore == null) return false;
+  if (valore is int) return true;
+  if (valore is double) return false;
+  return false;
+}
 
 //import 'dart:convert';
-void main(List<String> args) {
+int main(List<String> args) {
   if (args.length != 3) {
     print(
         "Uso: bulk_rename.exe  <directory_input> <file_csv> <directory_output>");
-    return;
+    return 1;
   }
 
   String directoryInput = args[0];
@@ -13,7 +23,7 @@ void main(List<String> args) {
   String directoryOutput = args[2];
 
   Directory(directoryOutput).createSync(recursive: true);
-
+/*
   // Legge il file CSV e carica i dati in una mappa
   Map<int, String> nomiFile = {};
   try {
@@ -42,6 +52,30 @@ void main(List<String> args) {
     print("Errore durante la lettura del file CSV: $e");
     return;
   }
+*/
+
+  var d = FirstOccurrenceSettingsDetector(
+      fieldDelimiters: [';', ','], eols: ['\n', '\r\n']); // Leggi il file CSV
+  final csv = File(fileCsv).readAsStringSync();
+  List<List<dynamic>> fields = CsvToListConverter(
+          csvSettingsDetector: d, convertEmptyTo: EmptyValue.NULL)
+      .convert(csv);
+
+  if (fields.isEmpty || fields[0].length < 2) {
+    print('CSV non valido - #,nome');
+    return -1;
+  }
+
+  // Filtra le righe per mantenere solo quelle che iniziano con un numero
+  fields = fields.where((row) {
+    // Verifica se il primo campo è un numero
+    return row.isNotEmpty && isOK(row[0]);
+  }).toList();
+
+  fields.removeWhere((row) => row.contains(null));
+  List<String> nome = fields.map((row) => row[1].toString()).toList();
+  List<int> ID =
+      fields.map((row) => int.tryParse(row[0].toString()) ?? 0).toList();
 
   // Scansiona la directory per trovare i file numerati
   Directory(directoryInput).listSync().forEach((file) {
@@ -57,10 +91,13 @@ void main(List<String> args) {
       Match? match = regExp.firstMatch(fileName);
       if (match != null) {
         int numeroFile = int.parse(match.group(1)!);
-        if (nomiFile.containsKey(numeroFile)) {
+        if (ID.contains(numeroFile)) {
           // Rinomina il file
           String estensione = fileName.split('.').last;
-          String nuovoNome = '${nomiFile[numeroFile]}.${estensione}';
+          //String nuovoNome = '${nomiFile[numeroFile]}.${estensione}';
+          String nuovoNome =
+              //'${numeroFile}_${nome[ID.indexOf(numeroFile)]}.${estensione}'; //Debug con numero!
+              '${nome[ID.indexOf(numeroFile)]}.${estensione}';
           try {
             // File(file.path).renameSync('$directoryInput/$nuovoNome');
             // print('Rinominato $fileName in $nuovoNome');
@@ -74,4 +111,5 @@ void main(List<String> args) {
       }
     }
   });
+  return 0;
 }
