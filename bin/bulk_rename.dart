@@ -14,7 +14,7 @@ bool isOK(dynamic valore) {
 int main(List<String> args) {
   if (args.length != 3) {
     print(
-        "Uso: bulk_rename.exe  <directory_input> <file_csv> <directory_output>");
+        "Uso: bulk_rename.exe  <directory_input> <file_csv> <directory_output> -> name_descr.ext");
     return 1;
   }
 
@@ -61,8 +61,8 @@ int main(List<String> args) {
           csvSettingsDetector: d, convertEmptyTo: EmptyValue.NULL)
       .convert(csv);
 
-  if (fields.isEmpty || fields[0].length < 2) {
-    print('CSV non valido - #,nome');
+  if (fields.isEmpty || fields[0].length < 3) {
+    print('CSV non valido - #,nome,descr -> nome_descr.ext');
     return -1;
   }
 
@@ -74,6 +74,7 @@ int main(List<String> args) {
 
   fields.removeWhere((row) => row.contains(null));
   List<String> nome = fields.map((row) => row[1].toString()).toList();
+  List<String> descr = fields.map((row) => row[2].toString()).toList();
   List<int> ID =
       fields.map((row) => int.tryParse(row[0].toString()) ?? 0).toList();
 
@@ -97,7 +98,7 @@ int main(List<String> args) {
           //String nuovoNome = '${nomiFile[numeroFile]}.${estensione}';
           String nuovoNome =
               //'${numeroFile}_${nome[ID.indexOf(numeroFile)]}.${estensione}'; //Debug con numero!
-              '${nome[ID.indexOf(numeroFile)]}.${estensione}';
+              '${nome[ID.indexOf(numeroFile)]}_${descr[ID.indexOf(numeroFile)]}.${estensione}';
           try {
             // File(file.path).renameSync('$directoryInput/$nuovoNome');
             // print('Rinominato $fileName in $nuovoNome');
